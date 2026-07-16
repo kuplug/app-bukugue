@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title id="page-title">Detail Ebook</title>
+<link rel="stylesheet" href="assets/style.css" />
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" id="site-name">Perpustakaan Ebook</a>
+  <div class="login-area">
+    <div id="gsi-button"></div>
+    <span id="user-badge" style="display:none;"></span>
+  </div>
+</header>
+
+<main>
+  <div class="detail-grid">
+    <div class="detail-cover">
+      <img id="ebook-cover" src="" alt="" />
+    </div>
+    <div class="detail-info">
+      <h1 id="ebook-title">Memuat...</h1>
+      <p id="ebook-author" style="color:#666;"></p>
+      <p id="ebook-description"></p>
+
+      <h3 id="preview-label"></h3>
+      <p id="preview-note" style="color:#666; font-size:.9rem;"></p>
+      <iframe id="preview-frame" class="preview-frame"></iframe>
+
+      <div>
+        <button class="primary" id="download-btn">Unduh Ebook Lengkap</button>
+        <p id="login-required-note" style="color:#666; font-size:.85rem; display:none;"></p>
+      </div>
+    </div>
+  </div>
+
+  <section id="wa-section" style="text-align:center; margin-top:2rem;"></section>
+  <section id="newsletter-section"></section>
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<!-- Modal donasi/doa sebelum download -->
+<div class="modal-overlay" id="download-modal" style="display:none;">
+  <div class="modal-box">
+    <h2 id="modal-title"></h2>
+    <p id="modal-intro"></p>
+    <img class="qris" id="qris-image" src="" alt="QRIS Donasi" />
+    <textarea id="doa-input" rows="3"></textarea>
+    <input type="text" id="donation-note-input" />
+    <p style="font-size:.8rem; color:#888;" id="skip-note"></p>
+    <div class="modal-actions">
+      <button class="secondary" id="modal-cancel">Batal</button>
+      <button class="primary" id="modal-continue">Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/app.js"></script>
+<script>
+let currentEbook = null;
+
+function getSlug() {
+  return new URLSearchParams(window.location.search).get("slug");
+}
+
+async function main() {
+  const cfg = await loadConfig();
+  const slug = getSlug();
+
+  document.getElementById("page-title").textContent = cfg.site.name;
+  document.getElementById("site-name").textContent = cfg.site.name;
+  document.getElementById("site-footer").textContent = cfg.site.footer_text;
+  document.getElementById("preview-label").textContent = cfg.pages.ebook_detail.preview_label;
+  document.getElementById("preview-note").textContent = cfg.pages.ebook_detail.preview_note;
+  document.getElementById("download-btn").textContent = cfg.pages.ebook_detail.download_button;
+  document.getElementById("login-required-note").textContent = cfg.pages.ebook_detail.login_required_note;
+
+  document.getElementById("modal-title").textContent = cfg.pages.ebook_detail.modal_title;
+  document.getElementById("modal-intro").textContent = cfg.pages.ebook_detail.modal_intro;
+  document.getElementById("doa-input").placeholder = cfg.pages.ebook_detail.doa_placeholder;
+  document.getElementById("donation-note-input").placeholder = cfg.pages.ebook_detail.donation_note_placeholder;
+  document.getElementById("modal-continue").textContent = cfg.pages.ebook_detail.continue_button;
+  document.getElementById("skip-note").textContent = cfg.pages.ebook_detail.skip_note;
+  document.getElementById("qris-image").src = cfg.payment.qris_image_url;
+
+  renderWhatsappButton(document.getElementById("wa-section"));
+  renderNewsletterForm(document.getElementById("newsletter-section"), `ebook_detail:${slug}`);
+
+  initGoogleSignIn("gsi-button", (user) => updateUserBadge(user));
+  if (isLoggedIn()) updateUserBadge(AppState.user);
+
+  if (!slug) {
+    document.getElementById("ebook-title").textContent = "Ebook tidak ditemukan";
+    return;
+  }
+
+  try {
+    const data = await apiGet(`/api/ebooks/${encodeURIComponent(slug)}`);
+    currentEbook = data.ebook;
+    document.getElementById("page-title").textContent = currentEbook.title;
+    document.getElementById("ebook-title").textContent = currentEbook.title;
+    document.getElementById("ebook-author").textContent = currentEbook.author || "";
+    document.getElementById("ebook-description").textContent = currentEbook.description || "";
+    document.getElementById("ebook-cover").src = currentEbook.cover_url || "";
+    document.getElementById("preview-frame").src = currentEbook.preview_url || "";
+  } catch (e) {
+    document.getElementById("ebook-title").textContent = `Gagal memuat: ${e.message}`;
+    return;
+  }
+
+  document.getElementById("download-btn").addEventListener("click", onDownloadClick);
+  document.getElementById("modal-cancel").addEventListener("click", closeModal);
+  document.getElementById("modal-continue").addEventListener("click", onContinueDownload);
+}
+
+function updateUserBadge(user) {
+  const badge = document.getElementById("user-badge");
+  const gsi = document.getElementById("gsi-button");
+  badge.style.display = "inline";
+  badge.textContent = `Halo, ${user.name}`;
+  gsi.style.display = "none";
+  document.getElementById("login-required-note").style.display = "none";
+}
+
+function onDownloadClick() {
+  if (!isLoggedIn()) {
+    document.getElementById("login-required-note").style.display = "block";
+    document.getElementById("gsi-button").scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+  document.getElementById("download-modal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("download-modal").style.display = "none";
+}
+
+async function onContinueDownload() {
+  const doaText = document.getElementById("doa-input").value.trim();
+  const donationNote = document.getElementById("donation-note-input").value.trim();
+  const btn = document.getElementById("modal-continue");
+  btn.disabled = true;
+  btn.textContent = "Memproses...";
+  try {
+    const data = await apiPost(
+      `/api/ebooks/${encodeURIComponent(currentEbook.slug)}/download`,
+      { doa_text: doaText, donation_note: donationNote },
+      true
+    );
+    window.location.href = data.download_url;
+    closeModal();
+  } catch (e) {
+    alert(`Gagal mengunduh: ${e.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = AppState.config.pages.ebook_detail.continue_button;
+  }
+}
+
+main();
+</script>
+</body>
+</html>

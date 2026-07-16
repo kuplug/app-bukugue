@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title id="page-title">Perpustakaan Ebook</title>
+<link rel="stylesheet" href="assets/style.css" />
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" id="site-name">Perpustakaan Ebook</a>
+  <div class="login-area">
+    <div id="gsi-button"></div>
+    <span id="user-badge" style="display:none;"></span>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <h1 id="hero-title">Memuat...</h1>
+    <p id="hero-subtitle"></p>
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="Cari ebook..." />
+      <button id="search-btn">Cari</button>
+    </div>
+  </section>
+
+  <section id="ebook-grid" class="ebook-grid"></section>
+  <p id="empty-state" style="display:none; text-align:center; color:#666;"></p>
+
+  <section id="wa-section" style="text-align:center; margin-top:2rem;"></section>
+  <section id="newsletter-section"></section>
+</main>
+
+<footer class="site-footer" id="site-footer"></footer>
+
+<script src="assets/app.js"></script>
+<script>
+async function main() {
+  const cfg = await loadConfig();
+
+  document.getElementById("page-title").textContent = cfg.site.name;
+  document.getElementById("site-name").textContent = cfg.site.name;
+  document.getElementById("hero-title").textContent = cfg.pages.home.hero_title;
+  document.getElementById("hero-subtitle").textContent = cfg.pages.home.hero_subtitle;
+  document.getElementById("search-input").placeholder = cfg.pages.home.search_placeholder;
+  document.getElementById("site-footer").textContent = cfg.site.footer_text;
+
+  renderWhatsappButton(document.getElementById("wa-section"));
+  renderNewsletterForm(document.getElementById("newsletter-section"), "home");
+
+  initGoogleSignIn("gsi-button", (user) => updateUserBadge(user));
+  if (isLoggedIn()) updateUserBadge(AppState.user);
+
+  await loadAndRenderEbooks("");
+
+  document.getElementById("search-btn").addEventListener("click", () => {
+    loadAndRenderEbooks(document.getElementById("search-input").value.trim());
+  });
+  document.getElementById("search-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") loadAndRenderEbooks(e.target.value.trim());
+  });
+}
+
+function updateUserBadge(user) {
+  const badge = document.getElementById("user-badge");
+  const gsi = document.getElementById("gsi-button");
+  badge.style.display = "inline";
+  badge.textContent = `Halo, ${user.name}`;
+  gsi.style.display = "none";
+}
+
+async function loadAndRenderEbooks(query) {
+  const grid = document.getElementById("ebook-grid");
+  const empty = document.getElementById("empty-state");
+  grid.innerHTML = "";
+  empty.style.display = "none";
+  try {
+    const path = query ? `/api/ebooks?q=${encodeURIComponent(query)}` : "/api/ebooks";
+    const data = await apiGet(path);
+    if (!data.ebooks.length) {
+      empty.style.display = "block";
+      empty.textContent = AppState.config.pages.home.empty_state;
+      return;
+    }
+    data.ebooks.forEach((ebook) => {
+      const a = document.createElement("a");
+      a.className = "ebook-card";
+      a.href = `ebook.html?slug=${encodeURIComponent(ebook.slug)}`;
+      a.innerHTML = `
+        <img src="${escapeHtml(ebook.cover_url || '')}" alt="${escapeHtml(ebook.title)}" />
+        <div class="info">
+          <h3>${escapeHtml(ebook.title)}</h3>
+          <p>${escapeHtml(ebook.author || '')}</p>
+        </div>
+      `;
+      grid.appendChild(a);
+    });
+  } catch (e) {
+    empty.style.display = "block";
+    empty.textContent = `Gagal memuat ebook: ${e.message}`;
+  }
+}
+
+main();
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+{
+  "api_base": "https://ebook-donatjs-api.YOUR-SUBDOMAIN.workers.dev",
+  "site": {
+    "name": "Perpustakaan DonatJS",
+    "tagline": "Baca gratis, unduh dengan donasi sukarela atau doa baik.",
+    "footer_text": "© 2026 Sismadi Langit Solusi. Dibangun dengan arsitektur DonatJS."
+  },
+  "pages": {
+    "home": {
+      "hero_title": "Ebook Gratis, Bernilai Berkah",
+      "hero_subtitle": "Semua ebook bisa dibaca cepat tanpa login. Untuk mengunduh, cukup berdonasi seikhlasnya atau tuliskan doa baik.",
+      "search_placeholder": "Cari judul, penulis, atau topik...",
+      "empty_state": "Belum ada ebook yang cocok dengan pencarianmu."
+    },
+    "ebook_detail": {
+      "preview_label": "Baca Cepat (Preview)",
+      "preview_note": "Preview menampilkan sebagian halaman. Untuk membaca dan mengunduh versi lengkap, silakan lanjutkan di bawah.",
+      "download_button": "Unduh Ebook Lengkap",
+      "login_required_note": "Login dengan akun Google diperlukan untuk menulis doa dan mengunduh.",
+      "modal_title": "Sebelum Mengunduh...",
+      "modal_intro": "Ebook ini gratis. Jika berkenan, kamu bisa berdonasi seikhlasnya (scan QRIS di bawah) dan/atau menuliskan doa baik untuk penulis serta pembaca lain.",
+      "doa_placeholder": "Tuliskan doa baikmu di sini (opsional, tapi akan sangat berarti)...",
+      "donation_note_placeholder": "Catatan donasi, mis. 'sudah transfer Rp20.000' (opsional)",
+      "continue_button": "Lanjutkan Unduh",
+      "skip_note": "Donasi bersifat sukarela dan tidak mempengaruhi akses unduh."
+    }
+  },
+  "auth": {
+    "google_client_id": "YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+    "login_button_text": "Masuk dengan Google"
+  },
+  "payment": {
+    "qris_image_url": "assets/qris-sample.png",
+    "bank_transfer": {
+      "bank_name": "Bank Contoh",
+      "account_number": "1234567890",
+      "account_holder": "PT Sismadi Langit Solusi"
+    }
+  },
+  "newsletter": {
+    "enabled": true,
+    "title": "Ingin info ebook baru?",
+    "subtitle": "Daftar untuk mendapat kabar rilis ebook & tulisan terbaru.",
+    "button_text": "Berlangganan"
+  },
+  "whatsapp": {
+    "enabled": true,
+    "number": "6281234567890",
+    "button_text": "Hubungi via WhatsApp",
+    "message_template": "Halo, saya ingin bertanya tentang ebook di perpustakaan DonatJS."
+  }
+}
