@@ -26,7 +26,7 @@
     }
   },
   "auth": {
-    "google_client_id": "YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+    "google_client_id": "236779057598-udl92j3e9f6klmnm0bqignh6oneaat2u.apps.googleusercontent.com",
     "login_button_text": "Masuk dengan Google"
   },
   "payment": {
