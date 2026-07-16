@@ -1,5 +1,5 @@
 {
-  "api_base": "https://api-bukugue.kuplug.workers.dev/",
+  "api_base": "https://api-bukugue.kuplug.workers.dev",
   "site": {
     "name": "Perpustakaan DonatJS",
     "tagline": "Baca gratis, unduh dengan donasi sukarela atau doa baik.",
