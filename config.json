@@ -30,7 +30,7 @@
     "login_button_text": "Masuk dengan Google"
   },
   "payment": {
-    "qris_image_url": "assets/qris-sample.png",
+    "qris_image_url": "assets/qr.png",
     "bank_transfer": {
       "bank_name": "Bank Contoh",
       "account_number": "1234567890",
