@@ -19,18 +19,50 @@
 
 <main>
   <section class="hero">
+    <span class="hero-eyebrow" id="hero-eyebrow"></span>
     <h1 id="hero-title">Memuat...</h1>
-    <p id="hero-subtitle"></p>
-    <div class="search-box">
-      <input type="text" id="search-input" placeholder="Cari ebook..." />
-      <button id="search-btn">Cari</button>
+    <p class="hero-body" id="hero-body"></p>
+    <div class="hero-ctas">
+      <a class="btn-ember" id="hero-cta-primary" href="#mood-section"></a>
+      <a class="btn-ghost" id="hero-cta-secondary" href="#results-section"></a>
     </div>
   </section>
 
-  <section id="ebook-grid" class="ebook-grid"></section>
-  <p id="empty-state" style="display:none; text-align:center; color:#666;"></p>
+  <section class="mood-section" id="mood-section">
+    <div class="section-heading">
+      <h2 id="mood-section-title"></h2>
+      <p id="mood-section-subtitle"></p>
+    </div>
+    <div class="mood-grid" id="mood-grid"></div>
+  </section>
 
-  <section id="wa-section" style="text-align:center; margin-top:2rem;"></section>
+  <section class="curated-section" id="curated-section" style="display:none;">
+    <div class="section-heading">
+      <h2 id="curated-title"></h2>
+      <p id="curated-subtitle"></p>
+    </div>
+    <div class="ebook-grid" id="curated-grid"></div>
+  </section>
+
+  <section class="results-section" id="results-section">
+    <div class="results-header">
+      <h2><span class="mood-prefix" id="results-mood-prefix" style="display:none;"></span><span id="results-title"></span></h2>
+      <button class="reset-filter" id="reset-filter" style="display:none;"></button>
+    </div>
+    <p class="mood-intro" id="mood-intro" style="display:none;"></p>
+    <div id="ebook-grid" class="ebook-grid"></div>
+    <p id="empty-state" style="display:none;"></p>
+  </section>
+
+  <div class="search-toggle-wrap">
+    <button class="search-toggle-btn" id="search-toggle"></button>
+    <div class="search-box" id="search-box">
+      <input type="text" id="search-input" placeholder="Cari ebook..." />
+      <button id="search-btn">Cari</button>
+    </div>
+  </div>
+
+  <section id="wa-section" style="text-align:center; margin-top:1rem;"></section>
   <section id="newsletter-section"></section>
 </main>
 
@@ -38,30 +70,65 @@
 
 <script src="assets/app.js"></script>
 <script>
+let allEbooks = [];
+let activeMoodId = null;
+
 async function main() {
   const cfg = await loadConfig();
 
   document.getElementById("page-title").textContent = cfg.site.name;
   document.getElementById("site-name").textContent = cfg.site.name;
-  document.getElementById("hero-title").textContent = cfg.pages.home.hero_title;
-  document.getElementById("hero-subtitle").textContent = cfg.pages.home.hero_subtitle;
-  document.getElementById("search-input").placeholder = cfg.pages.home.search_placeholder;
   document.getElementById("site-footer").textContent = cfg.site.footer_text;
 
+  const m = cfg.manifesto;
+  document.getElementById("hero-eyebrow").textContent = m.eyebrow;
+  document.getElementById("hero-title").textContent = m.headline;
+  document.getElementById("hero-body").textContent = m.body;
+  document.getElementById("hero-cta-primary").textContent = m.cta_label;
+  document.getElementById("hero-cta-secondary").textContent = m.cta_secondary_label;
+
+  const homeCfg = cfg.pages.home;
+  document.getElementById("mood-section-title").textContent = homeCfg.mood_section_title;
+  document.getElementById("mood-section-subtitle").textContent = homeCfg.mood_section_subtitle;
+  document.getElementById("results-title").textContent = homeCfg.results_default_title;
+  document.getElementById("reset-filter").textContent = homeCfg.reset_filter_label;
+  document.getElementById("search-toggle").textContent = homeCfg.search_toggle_label;
+  document.getElementById("search-input").placeholder = homeCfg.search_placeholder;
+
+  renderMoodGrid(cfg.moods || []);
   renderWhatsappButton(document.getElementById("wa-section"));
   renderNewsletterForm(document.getElementById("newsletter-section"), "home");
 
   initGoogleSignIn("gsi-button", (user) => updateUserBadge(user));
   if (isLoggedIn()) updateUserBadge(AppState.user);
 
-  await loadAndRenderEbooks("");
+  document.getElementById("hero-cta-secondary").addEventListener("click", (e) => {
+    e.preventDefault();
+    resetMoodFilter();
+    document.getElementById("results-section").scrollIntoView({ behavior: "smooth" });
+  });
 
+  document.getElementById("reset-filter").addEventListener("click", resetMoodFilter);
+
+  document.getElementById("search-toggle").addEventListener("click", () => {
+    const box = document.getElementById("search-box");
+    box.classList.toggle("open");
+    if (box.classList.contains("open")) document.getElementById("search-input").focus();
+  });
   document.getElementById("search-btn").addEventListener("click", () => {
-    loadAndRenderEbooks(document.getElementById("search-input").value.trim());
+    resetMoodFilter(false);
+    searchAndRender(document.getElementById("search-input").value.trim());
   });
   document.getElementById("search-input").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") loadAndRenderEbooks(e.target.value.trim());
+    if (e.key === "Enter") {
+      resetMoodFilter(false);
+      searchAndRender(e.target.value.trim());
+    }
   });
+
+  await loadAllEbooks();
+  renderCurated(cfg.curated);
+  applyFilter();
 }
 
 function updateUserBadge(user) {
@@ -72,36 +139,129 @@ function updateUserBadge(user) {
   gsi.style.display = "none";
 }
 
-async function loadAndRenderEbooks(query) {
+function renderMoodGrid(moods) {
+  const grid = document.getElementById("mood-grid");
+  grid.innerHTML = "";
+  moods.forEach((mood) => {
+    const btn = document.createElement("button");
+    btn.className = "mood-card";
+    btn.dataset.moodId = mood.id;
+    btn.innerHTML = `<span class="emoji">${mood.emoji}</span><span>${escapeHtml(mood.label)}</span>`;
+    btn.addEventListener("click", () => selectMood(mood.id));
+    grid.appendChild(btn);
+  });
+}
+
+function selectMood(moodId) {
+  activeMoodId = moodId;
+  document.querySelectorAll(".mood-card").forEach((el) => {
+    el.classList.toggle("active", el.dataset.moodId === moodId);
+  });
+  const box = document.getElementById("search-box");
+  box.classList.remove("open");
+  applyFilter();
+  document.getElementById("results-section").scrollIntoView({ behavior: "smooth" });
+}
+
+function resetMoodFilter(scroll) {
+  activeMoodId = null;
+  document.querySelectorAll(".mood-card").forEach((el) => el.classList.remove("active"));
+  applyFilter();
+  if (scroll !== false) {
+    // no-op, caller controls scroll separately
+  }
+}
+
+async function loadAllEbooks() {
+  try {
+    const data = await apiGet("/api/ebooks");
+    allEbooks = data.ebooks || [];
+  } catch (e) {
+    allEbooks = [];
+    const empty = document.getElementById("empty-state");
+    empty.style.display = "block";
+    empty.textContent = `Gagal memuat bacaan: ${e.message}`;
+  }
+}
+
+function applyFilter() {
+  const cfg = AppState.config;
+  const homeCfg = cfg.pages.home;
+  const mood = activeMoodId ? findMoodById(activeMoodId) : null;
+
+  const prefixEl = document.getElementById("results-mood-prefix");
+  const titleEl = document.getElementById("results-title");
+  const resetBtn = document.getElementById("reset-filter");
+  const introEl = document.getElementById("mood-intro");
+
+  if (mood) {
+    prefixEl.style.display = "block";
+    prefixEl.textContent = homeCfg.results_mood_prefix;
+    titleEl.textContent = `${mood.emoji} ${mood.label}`;
+    resetBtn.style.display = "inline";
+    introEl.style.display = "block";
+    introEl.textContent = mood.intro || "";
+  } else {
+    prefixEl.style.display = "none";
+    titleEl.textContent = homeCfg.results_default_title;
+    resetBtn.style.display = "none";
+    introEl.style.display = "none";
+  }
+
+  const filtered = mood ? allEbooks.filter((eb) => ebookMatchesMood(eb, mood)) : allEbooks;
   const grid = document.getElementById("ebook-grid");
   const empty = document.getElementById("empty-state");
-  grid.innerHTML = "";
+
+  if (!filtered.length) {
+    grid.innerHTML = "";
+    empty.style.display = "block";
+    empty.textContent = homeCfg.empty_state;
+    return;
+  }
   empty.style.display = "none";
+  renderEbookGrid(grid, filtered);
+}
+
+async function searchAndRender(query) {
+  const homeCfg = AppState.config.pages.home;
+  const grid = document.getElementById("ebook-grid");
+  const empty = document.getElementById("empty-state");
+  document.getElementById("results-title").textContent = query
+    ? `Hasil pencarian: "${query}"`
+    : homeCfg.results_default_title;
+  document.getElementById("results-mood-prefix").style.display = "none";
+  document.getElementById("mood-intro").style.display = "none";
+  document.getElementById("reset-filter").style.display = "none";
+
   try {
     const path = query ? `/api/ebooks?q=${encodeURIComponent(query)}` : "/api/ebooks";
     const data = await apiGet(path);
     if (!data.ebooks.length) {
+      grid.innerHTML = "";
       empty.style.display = "block";
-      empty.textContent = AppState.config.pages.home.empty_state;
+      empty.textContent = homeCfg.empty_state_search;
       return;
     }
-    data.ebooks.forEach((ebook) => {
-      const a = document.createElement("a");
-      a.className = "ebook-card";
-      a.href = `ebook.html?slug=${encodeURIComponent(ebook.slug)}`;
-      a.innerHTML = `
-        <img src="${escapeHtml(ebook.cover_url || '')}" alt="${escapeHtml(ebook.title)}" />
-        <div class="info">
-          <h3>${escapeHtml(ebook.title)}</h3>
-          <p>${escapeHtml(ebook.author || '')}</p>
-        </div>
-      `;
-      grid.appendChild(a);
-    });
+    empty.style.display = "none";
+    renderEbookGrid(grid, data.ebooks);
   } catch (e) {
+    grid.innerHTML = "";
     empty.style.display = "block";
-    empty.textContent = `Gagal memuat ebook: ${e.message}`;
+    empty.textContent = `Gagal memuat: ${e.message}`;
   }
+}
+
+function renderCurated(curatedCfg) {
+  if (!curatedCfg || !curatedCfg.enabled || !curatedCfg.slugs || !curatedCfg.slugs.length) return;
+  const picks = curatedCfg.slugs
+    .map((slug) => allEbooks.find((eb) => eb.slug === slug))
+    .filter(Boolean);
+  if (!picks.length) return;
+
+  document.getElementById("curated-title").textContent = curatedCfg.title;
+  document.getElementById("curated-subtitle").textContent = curatedCfg.subtitle;
+  renderEbookGrid(document.getElementById("curated-grid"), picks);
+  document.getElementById("curated-section").style.display = "block";
 }
 
 main();

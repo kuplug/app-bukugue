@@ -1,6 +1,7 @@
 /**
  * app.js - logika bersama untuk index.html & ebook.html
  * Semua teks/label diambil dari config.json (pola DonatJS-core: config-driven UI).
+ * Ditambah: pencocokan mood/tag, estimasi waktu baca, rekomendasi lanjutan.
  */
 
 const AppState = {
@@ -100,12 +101,12 @@ function renderNewsletterForm(container, sourceTag) {
   const wrap = document.createElement("div");
   wrap.className = "newsletter-box";
   wrap.innerHTML = `
-    <h3>${nl.title}</h3>
-    <p>${nl.subtitle}</p>
+    <h3>${escapeHtml(nl.title)}</h3>
+    <p>${escapeHtml(nl.subtitle)}</p>
     <form class="newsletter-form">
       <input type="email" name="email" placeholder="Email kamu" required />
       <input type="text" name="whatsapp" placeholder="No. WhatsApp (opsional)" />
-      <button type="submit">${nl.button_text}</button>
+      <button type="submit">${escapeHtml(nl.button_text)}</button>
     </form>
     <p class="newsletter-status" style="display:none;"></p>
   `;
@@ -133,4 +134,70 @@ function escapeHtml(str) {
   const div = document.createElement("div");
   div.textContent = str || "";
   return div.innerHTML;
+}
+
+/* ---------------- Mood / tag helpers ---------------- */
+
+function parseTags(ebook) {
+  if (!ebook || !ebook.tags) return [];
+  try {
+    const parsed = JSON.parse(ebook.tags);
+    return Array.isArray(parsed) ? parsed.map((t) => String(t).toLowerCase().trim()) : [];
+  } catch (e) {
+    // fallback: comma-separated string
+    return String(ebook.tags)
+      .split(",")
+      .map((t) => t.toLowerCase().trim())
+      .filter(Boolean);
+  }
+}
+
+function findMoodById(id) {
+  const moods = (AppState.config && AppState.config.moods) || [];
+  return moods.find((m) => m.id === id) || null;
+}
+
+function matchingMoods(ebook) {
+  const tags = parseTags(ebook);
+  if (!tags.length) return [];
+  const moods = (AppState.config && AppState.config.moods) || [];
+  return moods.filter((m) => (m.tags || []).some((t) => tags.includes(t.toLowerCase())));
+}
+
+function ebookMatchesMood(ebook, mood) {
+  if (!mood) return true;
+  const tags = parseTags(ebook);
+  return (mood.tags || []).some((t) => tags.includes(t.toLowerCase()));
+}
+
+function readingTimeMinutes(ebook) {
+  const cfg = (AppState.config && AppState.config.reading_time) || { minutes_per_page: 1.2, minimum_minutes: 5 };
+  const pages = Number(ebook && ebook.pages) || 0;
+  const est = Math.round(pages * (cfg.minutes_per_page || 1.2));
+  return Math.max(est, cfg.minimum_minutes || 5);
+}
+
+/* ---------------- Card rendering ---------------- */
+
+function renderEbookCard(ebook) {
+  const a = document.createElement("a");
+  a.className = "ebook-card";
+  a.href = `ebook.html?slug=${encodeURIComponent(ebook.slug)}`;
+  const minutes = readingTimeMinutes(ebook);
+  a.innerHTML = `
+    <div class="cover-wrap">
+      <img src="${escapeHtml(ebook.cover_url || '')}" alt="${escapeHtml(ebook.title)}" loading="lazy" />
+      <span class="time-badge">±${minutes} menit</span>
+    </div>
+    <div class="info">
+      <h3>${escapeHtml(ebook.title)}</h3>
+      <p>${escapeHtml(ebook.author || '')}</p>
+    </div>
+  `;
+  return a;
+}
+
+function renderEbookGrid(container, ebooks) {
+  container.innerHTML = "";
+  ebooks.forEach((ebook) => container.appendChild(renderEbookCard(ebook)));
 }

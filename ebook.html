@@ -18,25 +18,42 @@
 </header>
 
 <main>
+  <a class="chapter-eyebrow" href="index.html" id="back-link"></a>
+
   <div class="detail-grid">
     <div class="detail-cover">
       <img id="ebook-cover" src="" alt="" />
+      <span class="ribbon" id="time-ribbon"></span>
     </div>
     <div class="detail-info">
       <h1 id="ebook-title">Memuat...</h1>
-      <p id="ebook-author" style="color:#666;"></p>
-      <p id="ebook-description"></p>
+      <p class="author" id="ebook-author"></p>
 
-      <h3 id="preview-label"></h3>
-      <p id="preview-note" style="color:#666; font-size:.9rem;"></p>
+      <div class="fit-box" id="fit-box" style="display:none;">
+        <h4 id="fit-box-heading"></h4>
+        <ul id="fit-list"></ul>
+      </div>
+
+      <p class="description" id="ebook-description"></p>
+
+      <h3 class="preview-heading" id="preview-label"></h3>
+      <p class="preview-note" id="preview-note"></p>
       <iframe id="preview-frame" class="preview-frame"></iframe>
 
       <div>
         <button class="primary" id="download-btn">Unduh Ebook Lengkap</button>
-        <p id="login-required-note" style="color:#666; font-size:.85rem; display:none;"></p>
+        <p id="login-required-note" style="display:none;"></p>
       </div>
     </div>
   </div>
+
+  <section class="recs-section" id="recs-section" style="display:none;">
+    <div class="section-heading">
+      <h2 id="recs-title"></h2>
+      <p id="recs-subtitle"></p>
+    </div>
+    <div class="ebook-grid" id="recs-grid"></div>
+  </section>
 
   <section id="wa-section" style="text-align:center; margin-top:2rem;"></section>
   <section id="newsletter-section"></section>
@@ -50,9 +67,12 @@
     <h2 id="modal-title"></h2>
     <p id="modal-intro"></p>
     <img class="qris" id="qris-image" src="" alt="QRIS Donasi" />
+    <label id="doa-label" for="doa-input"></label>
     <textarea id="doa-input" rows="3"></textarea>
+    <label id="donation-note-label" for="donation-note-input"></label>
     <input type="text" id="donation-note-input" />
-    <p style="font-size:.8rem; color:#888;" id="skip-note"></p>
+    <p style="font-size:.8rem; color:#8a8574; margin:0;" id="skip-note"></p>
+    <p class="modal-status" id="modal-status"></p>
     <div class="modal-actions">
       <button class="secondary" id="modal-cancel">Batal</button>
       <button class="primary" id="modal-continue">Lanjutkan</button>
@@ -71,22 +91,29 @@ function getSlug() {
 async function main() {
   const cfg = await loadConfig();
   const slug = getSlug();
+  const detailCfg = cfg.pages.ebook_detail;
 
   document.getElementById("page-title").textContent = cfg.site.name;
   document.getElementById("site-name").textContent = cfg.site.name;
   document.getElementById("site-footer").textContent = cfg.site.footer_text;
-  document.getElementById("preview-label").textContent = cfg.pages.ebook_detail.preview_label;
-  document.getElementById("preview-note").textContent = cfg.pages.ebook_detail.preview_note;
-  document.getElementById("download-btn").textContent = cfg.pages.ebook_detail.download_button;
-  document.getElementById("login-required-note").textContent = cfg.pages.ebook_detail.login_required_note;
+  document.getElementById("back-link").textContent = detailCfg.back_link_label;
+  document.getElementById("fit-box-heading").textContent = detailCfg.eyebrow_label;
+  document.getElementById("preview-label").textContent = detailCfg.preview_label;
+  document.getElementById("preview-note").textContent = detailCfg.preview_note;
+  document.getElementById("download-btn").textContent = detailCfg.download_button;
+  document.getElementById("login-required-note").textContent = detailCfg.login_required_note;
 
-  document.getElementById("modal-title").textContent = cfg.pages.ebook_detail.modal_title;
-  document.getElementById("modal-intro").textContent = cfg.pages.ebook_detail.modal_intro;
-  document.getElementById("doa-input").placeholder = cfg.pages.ebook_detail.doa_placeholder;
-  document.getElementById("donation-note-input").placeholder = cfg.pages.ebook_detail.donation_note_placeholder;
-  document.getElementById("modal-continue").textContent = cfg.pages.ebook_detail.continue_button;
-  document.getElementById("skip-note").textContent = cfg.pages.ebook_detail.skip_note;
+  document.getElementById("modal-title").textContent = detailCfg.modal_title;
+  document.getElementById("modal-intro").textContent = detailCfg.modal_intro;
+  document.getElementById("doa-label").textContent = detailCfg.doa_label;
+  document.getElementById("doa-input").placeholder = detailCfg.doa_placeholder;
+  document.getElementById("donation-note-label").textContent = detailCfg.donation_note_label;
+  document.getElementById("donation-note-input").placeholder = detailCfg.donation_note_placeholder;
+  document.getElementById("modal-continue").textContent = detailCfg.continue_button;
+  document.getElementById("skip-note").textContent = detailCfg.skip_note;
   document.getElementById("qris-image").src = cfg.payment.qris_image_url;
+  document.getElementById("recs-title").textContent = detailCfg.recommendations_title;
+  document.getElementById("recs-subtitle").textContent = detailCfg.recommendations_subtitle;
 
   renderWhatsappButton(document.getElementById("wa-section"));
   renderNewsletterForm(document.getElementById("newsletter-section"), `ebook_detail:${slug}`);
@@ -102,12 +129,7 @@ async function main() {
   try {
     const data = await apiGet(`/api/ebooks/${encodeURIComponent(slug)}`);
     currentEbook = data.ebook;
-    document.getElementById("page-title").textContent = currentEbook.title;
-    document.getElementById("ebook-title").textContent = currentEbook.title;
-    document.getElementById("ebook-author").textContent = currentEbook.author || "";
-    document.getElementById("ebook-description").textContent = currentEbook.description || "";
-    document.getElementById("ebook-cover").src = currentEbook.cover_url || "";
-    document.getElementById("preview-frame").src = currentEbook.preview_url || "";
+    renderEbookInfo(currentEbook, detailCfg);
   } catch (e) {
     document.getElementById("ebook-title").textContent = `Gagal memuat: ${e.message}`;
     return;
@@ -116,6 +138,35 @@ async function main() {
   document.getElementById("download-btn").addEventListener("click", onDownloadClick);
   document.getElementById("modal-cancel").addEventListener("click", closeModal);
   document.getElementById("modal-continue").addEventListener("click", onContinueDownload);
+
+  loadRecommendations(currentEbook, detailCfg);
+}
+
+function renderEbookInfo(ebook, detailCfg) {
+  document.getElementById("page-title").textContent = ebook.title;
+  document.getElementById("ebook-title").textContent = ebook.title;
+  document.getElementById("ebook-author").textContent = ebook.author || "";
+  document.getElementById("ebook-description").textContent = ebook.description || "";
+  document.getElementById("ebook-cover").src = ebook.cover_url || "";
+  document.getElementById("preview-frame").src = ebook.preview_url || "";
+
+  const minutes = readingTimeMinutes(ebook);
+  document.getElementById("time-ribbon").textContent = detailCfg.reading_time_label.replace("{minutes}", minutes);
+
+  const fits = matchingMoods(ebook);
+  const fitBox = document.getElementById("fit-box");
+  const fitList = document.getElementById("fit-list");
+  fitList.innerHTML = "";
+  if (fits.length) {
+    fits.forEach((m) => {
+      const li = document.createElement("li");
+      li.textContent = m.checklist_label;
+      fitList.appendChild(li);
+    });
+    fitBox.style.display = "block";
+  } else {
+    fitBox.style.display = "none";
+  }
 }
 
 function updateUserBadge(user) {
@@ -138,27 +189,58 @@ function onDownloadClick() {
 
 function closeModal() {
   document.getElementById("download-modal").style.display = "none";
+  document.getElementById("modal-status").style.display = "none";
 }
 
 async function onContinueDownload() {
+  const detailCfg = AppState.config.pages.ebook_detail;
   const doaText = document.getElementById("doa-input").value.trim();
   const donationNote = document.getElementById("donation-note-input").value.trim();
   const btn = document.getElementById("modal-continue");
+  const status = document.getElementById("modal-status");
   btn.disabled = true;
-  btn.textContent = "Memproses...";
+  btn.textContent = detailCfg.continue_button_loading;
   try {
     const data = await apiPost(
       `/api/ebooks/${encodeURIComponent(currentEbook.slug)}/download`,
       { doa_text: doaText, donation_note: donationNote },
       true
     );
-    window.location.href = data.download_url;
-    closeModal();
+    status.style.display = "block";
+    status.textContent = detailCfg.success_note;
+    setTimeout(() => {
+      window.location.href = data.download_url;
+      closeModal();
+    }, 900);
   } catch (e) {
-    alert(`Gagal mengunduh: ${e.message}`);
+    alert(`Gagal membuka halaman: ${e.message}`);
   } finally {
     btn.disabled = false;
-    btn.textContent = AppState.config.pages.ebook_detail.continue_button;
+    btn.textContent = detailCfg.continue_button;
+  }
+}
+
+async function loadRecommendations(ebook, detailCfg) {
+  try {
+    const data = await apiGet("/api/ebooks");
+    const currentTags = parseTags(ebook);
+    let pool = (data.ebooks || []).filter((eb) => eb.slug !== ebook.slug);
+
+    let picks = [];
+    if (currentTags.length) {
+      picks = pool.filter((eb) => parseTags(eb).some((t) => currentTags.includes(t)));
+    }
+    if (picks.length < 3) {
+      const rest = pool.filter((eb) => !picks.includes(eb));
+      picks = picks.concat(rest.slice(0, 3 - picks.length));
+    }
+    picks = picks.slice(0, 3);
+
+    if (!picks.length) return;
+    renderEbookGrid(document.getElementById("recs-grid"), picks);
+    document.getElementById("recs-section").style.display = "block";
+  } catch (e) {
+    // rekomendasi bersifat pelengkap; diamkan saja jika gagal dimuat
   }
 }
 

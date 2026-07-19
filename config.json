@@ -2,33 +2,137 @@
   "api_base": "https://api-bukugue.kuplug.workers.dev",
   "site": {
     "name": "Perpustakaan DonatJS",
-    "tagline": "Baca gratis, unduh dengan donasi sukarela atau doa baik.",
+    "tagline": "Bukan toko buku. Ruang untuk membuka babak berikutnya.",
     "footer_text": "© 2026 Sismadi Langit Solusi. Dibangun dengan arsitektur DonatJS."
   },
+
+  "manifesto": {
+    "eyebrow": "Perpustakaan Kehidupan",
+    "headline": "Setiap orang sedang menjalani babnya sendiri.",
+    "body": "Kadang babnya tentang lelah. Kadang tentang luka yang belum selesai. Kadang tentang mencari arah. Di sini, kami bantu kamu menemukan bacaan yang pas dengan bab yang sedang kamu jalani — bukan sekadar buku yang sedang ramai dibicarakan.",
+    "cta_label": "Cari bacaan berdasarkan yang kurasakan",
+    "cta_secondary_label": "atau langsung lihat semua bacaan"
+  },
+
+  "moods": [
+    {
+      "id": "lelah",
+      "emoji": "😴",
+      "label": "Aku sedang lelah dengan hidup",
+      "checklist_label": "sedang lelah dan butuh jeda",
+      "intro": "Lelah itu bukan tanda kamu lemah. Ini beberapa bacaan yang mungkin bisa menemanimu istirahat sejenak.",
+      "tags": ["lelah", "burnout", "capek", "istirahat"]
+    },
+    {
+      "id": "cemas",
+      "emoji": "😰",
+      "label": "Aku sering cemas & overthinking",
+      "checklist_label": "sering overthinking atau merasa cemas",
+      "intro": "Pikiran yang berputar terus itu melelahkan. Beberapa bacaan ini ditulis untuk pikiran yang seperti itu.",
+      "tags": ["cemas", "overthinking", "anxiety", "khawatir"]
+    },
+    {
+      "id": "luka",
+      "emoji": "💔",
+      "label": "Aku sedang menyembuhkan luka",
+      "checklist_label": "sedang membawa luka dari masa lalu",
+      "intro": "Luka tidak selalu terlihat. Ada yang dari keluarga, sahabat, atau diri sendiri. Semoga bacaan ini bisa menemani, sedikit demi sedikit.",
+      "tags": ["luka", "trauma", "broken-home", "patah-hati", "kehilangan"]
+    },
+    {
+      "id": "iman",
+      "emoji": "🕌",
+      "label": "Aku ingin lebih dekat dengan Allah",
+      "checklist_label": "ingin memperbaiki hubungan dengan Allah",
+      "intro": "Mendekat itu proses, bukan garis finis. Ini beberapa bacaan untuk menemani langkah kecilmu.",
+      "tags": ["iman", "spiritual", "doa", "ibadah", "hijrah"]
+    },
+    {
+      "id": "arah",
+      "emoji": "🧭",
+      "label": "Aku kehilangan arah hidup",
+      "checklist_label": "sedang bingung menentukan arah hidup",
+      "intro": "Nggak tahu harus mulai dari mana itu wajar. Ini bacaan yang bisa jadi titik awal.",
+      "tags": ["arah", "tujuan-hidup", "kebingungan", "hampa"]
+    },
+    {
+      "id": "karier",
+      "emoji": "💼",
+      "label": "Aku bingung soal karier & masa depan",
+      "checklist_label": "bingung soal karier atau masa depan",
+      "intro": "Belum punya jawaban itu bukan berarti tertinggal. Ini beberapa bacaan soal karier dan masa depan.",
+      "tags": ["karier", "kerja", "masa-depan", "kuliah"]
+    },
+    {
+      "id": "diri",
+      "emoji": "🌱",
+      "label": "Aku ingin lebih mengenal diri sendiri",
+      "checklist_label": "ingin lebih mengenal & menerima diri sendiri",
+      "intro": "Mengenal diri sendiri itu perjalanan panjang. Ini beberapa bacaan untuk menemani prosesnya.",
+      "tags": ["self-growth", "kepercayaan-diri", "insecure", "minder"]
+    },
+    {
+      "id": "hubungan",
+      "emoji": "❤️",
+      "label": "Hubunganku sedang rumit",
+      "checklist_label": "sedang menghadapi hubungan yang rumit",
+      "intro": "Hubungan yang rumit — dengan pasangan, keluarga, atau teman — memang nggak sederhana. Ini beberapa bacaan yang bisa membantu.",
+      "tags": ["hubungan", "relasi", "keluarga", "pernikahan", "persahabatan"]
+    }
+  ],
+
+  "curated": {
+    "enabled": true,
+    "title": "Direkomendasikan minggu ini",
+    "subtitle": "Dipilih langsung oleh tim kami — bukan hitungan otomatis.",
+    "slugs": []
+  },
+
   "pages": {
     "home": {
-      "hero_title": "Ebook Gratis, Bernilai Berkah",
-      "hero_subtitle": "Semua ebook bisa dibaca cepat tanpa login. Untuk mengunduh, cukup berdonasi seikhlasnya atau tuliskan doa baik.",
+      "mood_section_title": "Bab apa yang sedang kamu jalani?",
+      "mood_section_subtitle": "Pilih yang paling mendekati. Kami akan bantu carikan bacaannya.",
+      "results_default_title": "Semua bacaan",
+      "results_mood_prefix": "Menampilkan bacaan untuk:",
+      "reset_filter_label": "× Lihat semua bacaan",
+      "search_toggle_label": "Atau cari judul, penulis, atau topik tertentu",
       "search_placeholder": "Cari judul, penulis, atau topik...",
-      "empty_state": "Belum ada ebook yang cocok dengan pencarianmu."
+      "empty_state": "Belum ada bacaan untuk topik ini. Tim kami sedang menulisnya — coba topik lain dulu, ya.",
+      "empty_state_search": "Belum ada judul yang cocok dengan pencarianmu."
     },
     "ebook_detail": {
+      "back_link_label": "← Kembali ke perpustakaan",
+      "eyebrow_label": "Halaman ini cocok kalau kamu...",
+      "reading_time_label": "±{minutes} menit membaca",
       "preview_label": "Baca Cepat (Preview)",
       "preview_note": "Preview menampilkan sebagian halaman. Untuk membaca dan mengunduh versi lengkap, silakan lanjutkan di bawah.",
-      "download_button": "Unduh Ebook Lengkap",
-      "login_required_note": "Login dengan akun Google diperlukan untuk menulis doa dan mengunduh.",
-      "modal_title": "Sebelum Mengunduh...",
-      "modal_intro": "Ebook ini gratis. Jika berkenan, kamu bisa berdonasi seikhlasnya (scan QRIS di bawah) dan/atau menuliskan doa baik untuk penulis serta pembaca lain.",
-      "doa_placeholder": "Tuliskan doa baikmu di sini (opsional, tapi akan sangat berarti)...",
-      "donation_note_placeholder": "Catatan donasi, mis. 'sudah transfer Rp20.000' (opsional)",
-      "continue_button": "Lanjutkan Unduh",
-      "skip_note": "Donasi bersifat sukarela dan tidak mempengaruhi akses unduh."
+      "download_button": "Buka Halaman Lengkap",
+      "login_required_note": "Masuk dengan Google dulu untuk menuliskan doa dan membuka halaman lengkap.",
+      "modal_title": "Sebelum membuka halaman ini...",
+      "modal_intro": "Bacaan ini gratis. Kalau berkenan, kamu bisa mendukung dengan donasi seikhlasnya (scan QRIS di bawah) dan/atau menuliskan doa baik untuk penulis serta pembaca lain.",
+      "doa_label": "Tulis doa terbaikmu",
+      "doa_placeholder": "Semoga Allah membalas kebaikan semua yang terlibat menghadirkan bacaan ini...",
+      "donation_note_label": "Dukung karya ini (opsional)",
+      "donation_note_placeholder": "Catatan donasi, mis. 'sudah transfer Rp20.000'",
+      "continue_button": "Buka Halaman",
+      "continue_button_loading": "Menyiapkan halamanmu...",
+      "skip_note": "Donasi bersifat sukarela dan tidak memengaruhi akses membaca.",
+      "success_note": "Selamat, kamu baru saja membuka satu babak baru. 🎉",
+      "recommendations_title": "Lanjutkan membaca",
+      "recommendations_subtitle": "Bacaan lain yang mungkin masih nyambung dengan babmu saat ini."
     }
   },
+
+  "reading_time": {
+    "minutes_per_page": 1.2,
+    "minimum_minutes": 5
+  },
+
   "auth": {
     "google_client_id": "236779057598-udl92j3e9f6klmnm0bqignh6oneaat2u.apps.googleusercontent.com",
     "login_button_text": "Masuk dengan Google"
   },
+
   "payment": {
     "qris_image_url": "assets/qr.png",
     "bank_transfer": {
@@ -37,16 +141,18 @@
       "account_holder": "PT Sismadi Langit Solusi"
     }
   },
+
   "newsletter": {
     "enabled": true,
-    "title": "Ingin info ebook baru?",
-    "subtitle": "Daftar untuk mendapat kabar rilis ebook & tulisan terbaru.",
-    "button_text": "Berlangganan"
+    "title": "Mau tahu kalau ada halaman baru?",
+    "subtitle": "Kami kabari kalau ada bacaan baru yang mungkin cocok buat babmu.",
+    "button_text": "Ingatkan aku"
   },
+
   "whatsapp": {
     "enabled": true,
     "number": "6281234567890",
-    "button_text": "Hubungi via WhatsApp",
-    "message_template": "Halo, saya ingin bertanya tentang ebook di perpustakaan DonatJS."
+    "button_text": "Ngobrol lewat WhatsApp",
+    "message_template": "Halo, saya ingin bertanya tentang bacaan di Perpustakaan DonatJS."
   }
 }
