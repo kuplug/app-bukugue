@@ -10,7 +10,7 @@
     "eyebrow": "Perpustakaan Kehidupan",
     "headline": "Setiap orang sedang menjalani babnya sendiri.",
     "body": "Kadang babnya tentang lelah. Kadang tentang luka yang belum selesai. Kadang tentang mencari arah. Di sini, kami bantu kamu menemukan bacaan yang pas dengan bab yang sedang kamu jalani — bukan sekadar buku yang sedang ramai dibicarakan.",
-    "cta_label": "Cari bacaan berdasarkan yang kurasakan",
+    "cta_label": "Ceritakan apa yang kurasakan",
     "cta_secondary_label": "atau langsung lihat semua bacaan"
   },
 
@@ -78,6 +78,22 @@
       "checklist_label": "sedang menghadapi hubungan yang rumit",
       "intro": "Hubungan yang rumit — dengan pasangan, keluarga, atau teman — memang nggak sederhana. Ini beberapa bacaan yang bisa membantu.",
       "tags": ["hubungan", "relasi", "keluarga", "pernikahan", "persahabatan"]
+    },
+    {
+      "id": "keuangan",
+      "emoji": "💰",
+      "label": "Aku pusing soal uang",
+      "checklist_label": "sedang pusing memikirkan keuangan",
+      "intro": "Urusan uang memang bisa bikin kepala penuh. Ini beberapa bacaan soal mengelola keuangan dan menenangkan hati soal rezeki.",
+      "tags": ["uang", "keuangan", "rezeki", "produktivitas"]
+    },
+    {
+      "id": "parenting",
+      "emoji": "👶",
+      "label": "Aku ingin jadi orang tua yang baik",
+      "checklist_label": "sedang belajar menjadi orang tua yang baik",
+      "intro": "Belajar jadi orang tua itu proses seumur hidup, bukan sesuatu yang harus langsung sempurna. Ini beberapa bacaan yang bisa menemani.",
+      "tags": ["parenting", "keluarga", "anak"]
     }
   ],
 
@@ -88,10 +104,84 @@
     "slugs": []
   },
 
+  "quiz": {
+    "enabled": true,
+    "brand_badge": "B",
+    "min_matches_for_diagnosis": 2,
+    "steps": {
+      "start": {
+        "type": "list-selection",
+        "title": "Apa yang sedang terjadi di hatimu hari ini?",
+        "description": "Nggak semua kegelisahan akarnya sama. Jawab beberapa pertanyaan singkat ini biar kami bisa carikan bacaan yang paling pas dengan babmu sekarang.",
+        "options": [
+          { "id": "lelah", "text": "Aku lelah dan capek dengan hidup", "tags": ["lelah", "burnout", "capek", "istirahat"] },
+          { "id": "cemas", "text": "Pikiranku sering cemas dan overthinking", "tags": ["cemas", "overthinking", "anxiety", "khawatir"] },
+          { "id": "luka", "text": "Aku sedang membawa luka yang belum selesai", "tags": ["luka", "trauma", "broken-home", "patah-hati", "kehilangan"] },
+          { "id": "iman", "text": "Aku ingin lebih dekat dengan Allah", "tags": ["iman", "spiritual", "doa", "ibadah", "hijrah"] },
+          { "id": "arah", "text": "Aku merasa kehilangan arah hidup", "tags": ["arah", "tujuan-hidup", "kebingungan", "hampa"] },
+          { "id": "karier", "text": "Aku bingung soal karier dan masa depan", "tags": ["karier", "kerja", "masa-depan", "kuliah"] },
+          { "id": "hubungan", "text": "Hubunganku dengan orang lain sedang rumit", "tags": ["hubungan", "relasi", "keluarga", "pernikahan", "persahabatan"] },
+          { "id": "uang", "text": "Aku pusing soal uang", "tags": ["uang", "keuangan", "rezeki"] },
+          { "id": "belum-tahu", "text": "Aku belum tahu persisnya apa", "tags": ["self-growth"] }
+        ],
+        "next": "detail"
+      },
+      "detail": {
+        "type": "radio-selection",
+        "title": "Apa yang paling terasa belakangan ini?",
+        "options": [
+          { "id": "mikir-terus", "text": "Pikiranku terus berputar, susah berhenti", "icon": "🌀", "tags": ["overthinking", "cemas"] },
+          { "id": "susah-istirahat", "text": "Susah tidur / susah istirahat beneran", "icon": "🌙", "tags": ["lelah", "burnout"] },
+          { "id": "ibadah-berat", "text": "Ibadah terasa berat belakangan ini", "icon": "🕌", "tags": ["iman", "ibadah", "doa"] },
+          { "id": "soal-orang", "text": "Ini soal orang lain — keluarga, pasangan, atau teman", "icon": "💬", "tags": ["hubungan", "keluarga"] },
+          { "id": "soal-masa-depan", "text": "Ini soal masa depan, karier, atau uang", "icon": "🧭", "tags": ["karier", "masa-depan", "uang", "keuangan"] },
+          { "id": "belum-jelas", "text": "Belum jelas, aku cuma ingin lebih mengenal diriku", "icon": "🌱", "tags": ["self-growth", "kepercayaan-diri"] }
+        ],
+        "next": "diagnosis"
+      },
+      "diagnosis": {
+        "type": "diagnosis",
+        "title": "Kami rasa kami mulai memahami babmu.",
+        "subtitle": "Yang kamu rasakan itu valid — dan kamu nggak sendirian menghadapinya.",
+        "summary_title": "Dari jawabanmu, sepertinya kamu sedang:",
+        "footer_note": "Ini bukan diagnosis, cuma titik awal. Berikut beberapa bacaan yang mungkin bisa menemanimu.",
+        "next": "recommendation"
+      },
+      "recommendation": {
+        "type": "recommendation",
+        "title": "Bacaan yang mungkin cocok untuk babmu sekarang",
+        "subtitle": "Dipilih dari topik yang kamu pilih tadi",
+        "empty_text": "Kami belum punya bacaan yang pas persis untuk kombinasi ini — coba lihat semua bacaan dulu, ya.",
+        "next": "muhasabah"
+      },
+      "muhasabah": {
+        "type": "muhasabah",
+        "title": "Sebelum lanjut, coba renungkan dulu",
+        "quote": "\u201cApakah aku sedang mencoba mengendalikan sesuatu yang sebenarnya di luar kendaliku?\u201d",
+        "options": ["Ya", "Belum yakin", "Tidak"],
+        "footer_note": "Kejujuran di sini adalah langkah awal menuju hati yang lebih tenang.",
+        "next": "closing"
+      },
+      "closing": {
+        "type": "action-plan",
+        "title": "Langkah Kecil Hari Ini",
+        "tasks": [
+          { "icon": "📖", "text": "Buka salah satu bacaan di atas dan baca pelan-pelan." },
+          { "icon": "🤲", "text": "Tuliskan doa baikmu saat mengunduhnya nanti." },
+          { "icon": "🔁", "text": "Boleh ulangi obrolan ini kapan pun babmu berubah." }
+        ],
+        "quote": "Setiap hidup selalu punya halaman berikutnya.",
+        "author": "inibukugue"
+      }
+    }
+  },
+
   "pages": {
     "home": {
       "mood_section_title": "Bab apa yang sedang kamu jalani?",
       "mood_section_subtitle": "Pilih yang paling mendekati. Kami akan bantu carikan bacaannya.",
+      "quiz_teaser_text": "Nggak yakin harus pilih yang mana?",
+      "quiz_teaser_link": "Coba obrolan singkat 2 menit →",
       "results_default_title": "Semua bacaan",
       "results_mood_prefix": "Menampilkan bacaan untuk:",
       "reset_filter_label": "× Lihat semua bacaan",

@@ -12,6 +12,7 @@
 <header class="site-header">
   <a href="index.html" id="site-name">Perpustakaan Ebook</a>
   <div class="login-area">
+    <a class="quiz-nav-link" href="mulai.html">Obrolan Singkat</a>
     <div id="gsi-button"></div>
     <span id="user-badge" style="display:none;"></span>
   </div>
@@ -23,7 +24,7 @@
     <h1 id="hero-title">Memuat...</h1>
     <p class="hero-body" id="hero-body"></p>
     <div class="hero-ctas">
-      <a class="btn-ember" id="hero-cta-primary" href="#mood-section"></a>
+      <a class="btn-ember" id="hero-cta-primary" href="mulai.html"></a>
       <a class="btn-ghost" id="hero-cta-secondary" href="#results-section"></a>
     </div>
   </section>
@@ -34,6 +35,10 @@
       <p id="mood-section-subtitle"></p>
     </div>
     <div class="mood-grid" id="mood-grid"></div>
+    <p class="quiz-teaser">
+      <span id="quiz-teaser-text"></span>
+      <a id="quiz-teaser-link" href="mulai.html"></a>
+    </p>
   </section>
 
   <section class="curated-section" id="curated-section" style="display:none;">
@@ -90,6 +95,8 @@ async function main() {
   const homeCfg = cfg.pages.home;
   document.getElementById("mood-section-title").textContent = homeCfg.mood_section_title;
   document.getElementById("mood-section-subtitle").textContent = homeCfg.mood_section_subtitle;
+  document.getElementById("quiz-teaser-text").textContent = homeCfg.quiz_teaser_text || "";
+  document.getElementById("quiz-teaser-link").textContent = homeCfg.quiz_teaser_link || "";
   document.getElementById("results-title").textContent = homeCfg.results_default_title;
   document.getElementById("reset-filter").textContent = homeCfg.reset_filter_label;
   document.getElementById("search-toggle").textContent = homeCfg.search_toggle_label;
